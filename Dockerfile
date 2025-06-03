@@ -8,7 +8,7 @@ RUN pip install --no-cache-dir poetry
 WORKDIR /app
 
 # Copie seulement le fichier de dépendances pour installer plus vite
-COPY pyproject.toml poetry.lock* /app/
+COPY pyproject.toml README.md poetry.lock* /app/
 
 # Installe les dépendances sans créer un venv interne
 RUN poetry config virtualenvs.create false \
@@ -19,8 +19,8 @@ COPY . /app
 
 ENV PYTHONPATH=/app/src
 
-EXPOSE 80
+EXPOSE 8080
 
 # Définit la commande pour démarrer ton app
-CMD ["fastapi", "run", "./src/todolist_back/start.py", "--port", "80"]
+CMD ["fastapi", "run", "./src/todolist_back/start.py", "--port", "8080"]
 
