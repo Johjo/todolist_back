@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pyqure import PyqureMemory, pyqure
 from todolist_controller import TodolistControllerPort, TODOLIST_CONTROLLER
 from todolist_controller.presentation.todolist import TodolistPresentation
@@ -10,6 +11,17 @@ from todolist_controller.presentation.task import TaskPresentation
 
 def start_app(dependencies: PyqureMemory):
     app = FastAPI()
+    app = define_middleware(app)
+    app = define_route(app, dependencies)
+    return app
+
+
+def define_middleware(app : FastAPI) -> FastAPI:
+    app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True)
+    return app
+
+
+def define_route(app: FastAPI, dependencies: PyqureMemory) -> FastAPI:
     (_, inject) = pyqure(dependencies)
 
     @app.get("/todolist/{todolist_key}/task")
@@ -31,7 +43,6 @@ def start_app(dependencies: PyqureMemory):
             "is_opened": False if task is None else task.is_opened
         }}
 
-
     def get_tasks_or_default(todolist: TodolistPresentation | None) -> list[dict]:
         if todolist is None:
             return []
@@ -43,7 +54,5 @@ def start_app(dependencies: PyqureMemory):
             return []
         return [{"key": str(task.key), "name": task.name, "is_opened": task.is_opened} for task in
                 main_task.subtasks]
-
-
 
     return app
